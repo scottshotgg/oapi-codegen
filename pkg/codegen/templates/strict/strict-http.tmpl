@@ -51,11 +51,24 @@ type strictHandler struct {
         {{range .Bodies -}}
             {{if $multipleBodies}}if strings.HasPrefix(r.Header.Get("Content-Type"), "{{.ContentType}}") { {{end}}
                 {{if eq .NameTag "JSON" -}}
-                    var body {{$opid}}{{.NameTag}}RequestBody
-                    if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+                    var (
+                        body {{$opid}}{{.NameTag}}RequestBody
+                        b, err = io.ReadAll(r.Body)
+                    )
+
+                    if err != nil {
+                        sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't read body: %w", err))
+                        return
+                    }
+
+                    err = json.Unmarshal(&body, b)
+                    if err != nil {
                         sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
                         return
                     }
+
+                    r.Body = b
+                    
                     request.{{if $multipleBodies}}{{.NameTag}}{{end}}Body = &body
                 {{else if eq .NameTag "Formdata" -}}
                     if err := r.ParseForm(); err != nil {
