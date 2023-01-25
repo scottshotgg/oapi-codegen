@@ -23,8 +23,8 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/deepmap/oapi-codegen/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/scottshotgg/oapi-codegen/pkg/util"
 )
 
 type ParameterDefinition struct {
@@ -831,6 +831,7 @@ func GenerateParamsTypes(op OperationDefinition) []TypeDefinition {
 			Schema:         pSchema,
 			NeedsFormTag:   param.Style() == "form",
 			ExtensionProps: &param.Spec.ExtensionProps,
+			extensions:     make(map[string]string),
 		}
 		s.Properties = append(s.Properties, prop)
 	}

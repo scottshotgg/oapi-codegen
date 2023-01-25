@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -84,20 +85,37 @@ type Property struct {
 	WriteOnly      bool
 	NeedsFormTag   bool
 	ExtensionProps *openapi3.ExtensionProps
+	extensions     map[string]string
 }
 
 func (p Property) GoFieldName() string {
 	return SchemaNameToTypeName(p.JsonFieldName)
 }
 
+// func (p Property) GoTypeDef() string {
+// 	typeDef := p.Schema.TypeDecl()
+// 	if !p.Schema.SkipOptionalPointer &&
+// 		(!p.Required || p.Nullable ||
+// 			(p.ReadOnly && (!p.Required || !globalState.options.Compatibility.DisableRequiredReadOnlyAsPointer)) ||
+// 			p.WriteOnly) {
+
+// 		typeDef = "*" + typeDef
+// 	}
+// 	return typeDef
+// }
+
 func (p Property) GoTypeDef() string {
 	typeDef := p.Schema.TypeDecl()
-	if !p.Schema.SkipOptionalPointer &&
-		(!p.Required || p.Nullable ||
-			(p.ReadOnly && (!p.Required || !globalState.options.Compatibility.DisableRequiredReadOnlyAsPointer)) ||
-			p.WriteOnly) {
-
-		typeDef = "*" + typeDef
+	if !p.Schema.SkipOptionalPointer {
+		switch p.extensions["nullable"] {
+		case "true":
+			typeDef = "*" + typeDef
+		case "false":
+		case "":
+			if !p.Required {
+				typeDef = "*" + typeDef
+			}
+		}
 	}
 	return typeDef
 }
@@ -387,8 +405,13 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (Schema, error) {
 					ReadOnly:       p.Value.ReadOnly,
 					WriteOnly:      p.Value.WriteOnly,
 					ExtensionProps: &p.Value.ExtensionProps,
+					extensions:     make(map[string]string),
 				}
-				outSchema.Properties = append(outSchema.Properties, prop)
+
+				outSchema.Properties = append(outSchema.Properties,
+					parseProperty(prop, pSchema, p),
+				)
+				// outSchema.Properties = append(outSchema.Properties, prop)
 			}
 
 			if schema.AnyOf != nil {
@@ -595,6 +618,27 @@ type FieldDescriptor struct {
 	GoName   string // The Go compatible type name for the type
 	JsonName string // The json type name for the type
 	IsRef    bool   // Is this schema a reference to predefined object?
+}
+
+// Parses OpenAPI property
+func parseProperty(prop Property, s Schema, sRef *openapi3.SchemaRef) Property {
+	if sRef == nil || sRef.Value == nil {
+		return prop
+	}
+
+	for name, value := range sRef.Value.Extensions {
+		if !strings.HasPrefix(name, "x-go-") {
+			continue
+		}
+		s := strings.ReplaceAll(string(value.(json.RawMessage)), "\\", "")
+		// Remove quotes.
+		if len(s) > 1 && (s[0] == '"' && s[len(s)-1] == '"') {
+			s = s[1 : len(s)-1]
+		}
+		prop.extensions[name[5:]] = s
+	}
+
+	return prop
 }
 
 // GenFieldsFromProperties produce corresponding field names with JSON annotations,
