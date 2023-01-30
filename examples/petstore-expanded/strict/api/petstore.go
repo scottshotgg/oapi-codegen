@@ -69,11 +69,11 @@ func (p *PetStore) AddPet(ctx context.Context, request AddPetRequestObject) (Add
 	var pet Pet
 	pet.Name = request.Body.Name
 	pet.Tag = request.Body.Tag
-	pet.Id = p.NextId
+	pet.ID = p.NextId
 	p.NextId = p.NextId + 1
 
 	// Insert into map
-	p.Pets[pet.Id] = pet
+	p.Pets[pet.ID] = pet
 
 	// Now, we have to return the NewPet
 	return AddPet200JSONResponse(pet), nil
@@ -83,9 +83,9 @@ func (p *PetStore) FindPetByID(ctx context.Context, request FindPetByIDRequestOb
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
 
-	pet, found := p.Pets[request.Id]
+	pet, found := p.Pets[request.ID]
 	if !found {
-		return FindPetByIDdefaultJSONResponse{StatusCode: http.StatusNotFound, Body: Error{Code: http.StatusNotFound, Message: fmt.Sprintf("Could not find pet with ID %d", request.Id)}}, nil
+		return FindPetByIDdefaultJSONResponse{StatusCode: http.StatusNotFound, Body: Error{Code: http.StatusNotFound, Message: fmt.Sprintf("Could not find pet with ID %d", request.ID)}}, nil
 	}
 
 	return FindPetByID200JSONResponse(pet), nil
@@ -95,11 +95,11 @@ func (p *PetStore) DeletePet(ctx context.Context, request DeletePetRequestObject
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
 
-	_, found := p.Pets[request.Id]
+	_, found := p.Pets[request.ID]
 	if !found {
-		return DeletePetdefaultJSONResponse{StatusCode: http.StatusNotFound, Body: Error{Code: http.StatusNotFound, Message: fmt.Sprintf("Could not find pet with ID %d", request.Id)}}, nil
+		return DeletePetdefaultJSONResponse{StatusCode: http.StatusNotFound, Body: Error{Code: http.StatusNotFound, Message: fmt.Sprintf("Could not find pet with ID %d", request.ID)}}, nil
 	}
-	delete(p.Pets, request.Id)
+	delete(p.Pets, request.ID)
 
 	return DeletePet204Response{}, nil
 }

@@ -40,7 +40,7 @@ func TestAdditionalProperties(t *testing.T) {
 	err := json.Unmarshal([]byte(buf), &dst)
 	assert.NoError(t, err)
 	assert.Equal(t, "bob", dst.Name)
-	assert.Equal(t, 5, dst.Id)
+	assert.Equal(t, 5, dst.ID)
 	assert.Equal(t, "yes", *dst.Optional)
 	additional, found := dst.Get("additional")
 	assert.True(t, found)
@@ -136,7 +136,7 @@ func TestOneOfWithDiscriminator(t *testing.T) {
 	assert.Equal(t, "v5", discriminator)
 	v5, err := dst.ValueByDiscriminator()
 	assert.NoError(t, err)
-	assert.Equal(t, OneOfVariant5{Discriminator: "v5", Id: 123}, v5)
+	assert.Equal(t, OneOfVariant5{Discriminator: "v5", ID: 123}, v5)
 
 	// discriminator value will be filled by the generated code
 	err = dst.FromOneOfVariant4(OneOfVariant4{Name: "123"})
@@ -145,7 +145,7 @@ func TestOneOfWithDiscriminator(t *testing.T) {
 	assert.NoError(t, err)
 	assertJsonEqual(t, []byte(variant4), marshaled)
 
-	err = dst.FromOneOfVariant5(OneOfVariant5{Id: 123})
+	err = dst.FromOneOfVariant5(OneOfVariant5{ID: 123})
 	assert.NoError(t, err)
 	marshaled, err = json.Marshal(dst)
 	assert.NoError(t, err)
@@ -201,7 +201,7 @@ func TestAnyOf(t *testing.T) {
 
 	v5, err := dst.AsOneOfVariant5()
 	assert.NoError(t, err)
-	assert.Equal(t, OneOfVariant5{Discriminator: "all", Id: 456}, v5)
+	assert.Equal(t, OneOfVariant5{Discriminator: "all", ID: 456}, v5)
 }
 
 func TestOneOfWithAdditional(t *testing.T) {

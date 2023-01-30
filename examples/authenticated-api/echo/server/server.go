@@ -60,7 +60,7 @@ func (s *server) ListThings(ctx echo.Context) error {
 	for _, key := range thingKeys {
 		thing := s.things[key]
 		things = append(things, api.ThingWithID{
-			Id:   key,
+			ID:   key,
 			Name: thing.Name,
 		})
 	}
@@ -101,7 +101,7 @@ func (s *server) AddThing(ctx echo.Context) error {
 	s.things[s.lastID] = thing
 	thingWithId := api.ThingWithID{
 		Name: thing.Name,
-		Id:   s.lastID,
+		ID:   s.lastID,
 	}
 	s.lastID++
 
