@@ -416,7 +416,7 @@ type StrictMiddlewareFunc func(f StrictHandlerFunc, operationID string) StrictHa
 type StrictHTTPServerOptions struct {
 	RequestErrorHandlerFunc  func(w http.ResponseWriter, r *http.Request, err error)
 	ResponseErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
-	includeBody              bool
+	IncludeBody              bool
 }
 
 func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
@@ -486,7 +486,7 @@ func (sh *strictHandler) AddPet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if sh.options.includeBody {
+	if sh.options.IncludeBody {
 		r.Body = io.NopCloser(bytes.NewBuffer(b))
 	}
 

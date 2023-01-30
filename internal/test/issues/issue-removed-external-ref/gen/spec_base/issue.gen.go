@@ -251,7 +251,7 @@ type StrictMiddlewareFunc func(f StrictHandlerFunc, operationID string) StrictHa
 type StrictHTTPServerOptions struct {
 	RequestErrorHandlerFunc  func(w http.ResponseWriter, r *http.Request, err error)
 	ResponseErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
-	includeBody              bool
+	IncludeBody              bool
 }
 
 func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
