@@ -159,11 +159,7 @@ func ToCamelCase(str string) string {
 		_, capNext = separatorSet[v]
 	}
 
-	if strings.Contains(n, "Id") {
-		n = strings.Replace(n, "Id", "ID", -1)
-	}
-
-	return n
+	return strings.Replace(n, "Id", "ID", -1)
 }
 
 // SortedSchemaKeys returns the keys of the given SchemaRef dictionary in sorted
